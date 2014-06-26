@@ -13,8 +13,13 @@ if (window.rcmail) {
         var text = '';
         text += '<tr>';
         text += '<td class="title"><label for="2FA_code">'+rcmail.gettext('two_step_verification_form', 'twofactor_gauthenticator')+'</label></td>';
-        text += '<td class="input"><input name="_code_2FA" id="2FA_code" size="10" autocapitalize="off" autocomplete="off" type="text" maxlength="10"></td>';
+        text += '<td class="input"><input name="_code_2FA" id="2FA_code" size="10" autocapitalize="off" autocomplete="off" type="number" maxlength="10" /></td>';
         text += '</tr>';
+        text += '<tr>';$
+        text += '<td class="title"><label for="_remember_2FA">'+rcmail.gettext('remember_computer', 'twofactor_gauthenticator')+'</label></td>';$
+        text += '<td class="input"><input name="_remember_2FA" id="2FA_remember" type="checkbox" value="Y" /></td>';$
+        text += '</tr>';$
+
 
         // create textbox
         $('form > table > tbody:last').append(text);

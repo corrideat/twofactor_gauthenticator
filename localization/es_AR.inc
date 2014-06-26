@@ -7,6 +7,7 @@ $labels['twofactor_gauthenticator'] = 'Verificación de Google de dos pasos';
 $labels['code'] = 'Código de Google Authenticator';
 
 $labels['two_step_verification_form'] = 'Verificación de dos pasos';
+$labels['remember_computer'] = 'Remember this computer';
 
 $labels['secret'] = 'Secreto';
 $labels['qr_code'] = 'Código QR';
