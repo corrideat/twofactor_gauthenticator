@@ -397,16 +397,17 @@ class twofactor_gauthenticator extends rcube_plugin
         return $ga->verifyCode( ($secret ? $secret : self::__getSecret()), $code, 2);    // 2 = 2*30sec clock tolerance
     }
 
-    private function __cookie($set = TRUE) {
+	private function __cookie($set = TRUE) {
+		$rcmail = rcmail::get_instance();
         $user_agent = crc32(filter_input(INPUT_SERVER, 'USER_AGENT') ?: "\0\0\0\0\0");
         $key = hash_hmac('sha256', implode("\2\1\2", array($rcmail->user->data['username'], $this->__getSecret())), $rcmail->config->get('des_key'), TRUE);
         $iv = hash_hmac('md5', implode("\3\2\3", array($rcmail->user->data['password'], $this->__getSecret())), $rcmail->config->get('des_key'), TRUE);
         $name = hash_hmac('md5', $rcmail->user->data['username'], $rcmail->config->get('des_key'));
         if ($set) {
-            $expires = time() + 2592000; // 30 days from now
+            $expires = time() + 1296000; // 15 days from now
             $rand = mt_rand();
-            $signature = hash_hmac('sha256', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
-            $plain_content = sprintf("%x*%x*%s", $expires, $rand, $signature);
+            $signature = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
+            $plain_content = sprintf("%d:%d:%s", $expires, $rand, $signature);
             $encrypted_content = openssl_encrypt($plain_content, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
             if ($encrypted_content !== false) {
                 $b64_encrypted_content = strtr(base64_encode($encrypted_content), '+/=', '-_,');
@@ -415,16 +416,16 @@ class twofactor_gauthenticator extends rcube_plugin
             }
             return false;
         } else {
-            $b64_encrypted_content = filter_input(INPUT_COOKIE, $name, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/[a-zA-Z0-9_-]+,{0,2}/')));
-            if (is_string($b64_encrypted_content) && !empty($b64_encrypted_content) && strlen($b64_encrypted_content)%3 === 0) {
+            $b64_encrypted_content = filter_input(INPUT_COOKIE, $name, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/[a-zA-Z0-9_-]+,{0,3}/')));
+            if (is_string($b64_encrypted_content) && !empty($b64_encrypted_content) && strlen($b64_encrypted_content)%4 === 0) {
                 $encrypted_content = base64_decode(strtr($b64_encrypted_content, '-_,', '+/='), TRUE);
                 if ($encrypted_content !== false) {
                     $plain_content = openssl_decrypt($encrypted_content, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
                     if ($plain_content !== false) {
                         $now = time();
-                        list($expires, $rand, $signature) = explode('*', $plain_content, 3);
-                        if ($expires > $now && ($expires - $now) <= 2592000) {
-                            $signature_verification = hash_hmac('sha256', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
+                        list($expires, $rand, $signature) = explode(':', $plain_content, 3);
+                        if ($expires > $now && ($expires - $now) <= 1296000) {
+                            $signature_verification = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
                             // constant time
                             $cmp = strlen($signature) ^ strlen($signature_verification);
                             $signature = $signature ^ $signature_verification;
