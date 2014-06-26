@@ -397,16 +397,16 @@ class twofactor_gauthenticator extends rcube_plugin
         return $ga->verifyCode( ($secret ? $secret : self::__getSecret()), $code, 2);    // 2 = 2*30sec clock tolerance
     }
 
-	private function __cookie($set = TRUE) {
-		$rcmail = rcmail::get_instance();
-        $user_agent = crc32(filter_input(INPUT_SERVER, 'USER_AGENT') ?: "\0\0\0\0\0");
+    private function __cookie($set = TRUE) {
+        $rcmail = rcmail::get_instance();
+        $user_agent = hash_hmac('md5', filter_input(INPUT_SERVER, 'USER_AGENT') ?: "\0\0\0\0\0", $rcmail->config->get('des_key'));
         $key = hash_hmac('sha256', implode("\2\1\2", array($rcmail->user->data['username'], $this->__getSecret())), $rcmail->config->get('des_key'), TRUE);
-        $iv = hash_hmac('md5', implode("\3\2\3", array($rcmail->user->data['password'], $this->__getSecret())), $rcmail->config->get('des_key'), TRUE);
+        $iv = hash_hmac('md5', implode("\3\2\3", array($rcmail->user->data['username'], $this->__getSecret())), $rcmail->config->get('des_key'), TRUE);
         $name = hash_hmac('md5', $rcmail->user->data['username'], $rcmail->config->get('des_key'));
         if ($set) {
             $expires = time() + 1296000; // 15 days from now
             $rand = mt_rand();
-            $signature = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
+            $signature = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
             $plain_content = sprintf("%d:%d:%s", $expires, $rand, $signature);
             $encrypted_content = openssl_encrypt($plain_content, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
             if ($encrypted_content !== false) {
@@ -425,7 +425,7 @@ class twofactor_gauthenticator extends rcube_plugin
                         $now = time();
                         list($expires, $rand, $signature) = explode(':', $plain_content, 3);
                         if ($expires > $now && ($expires - $now) <= 1296000) {
-                            $signature_verification = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $rcmail->user->data['password'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
+                            $signature_verification = hash_hmac('sha512', implode("\1\0\1", array($rcmail->user->data['username'], $this->__getSecret(), $user_agent, $rand, $expires)), $rcmail->config->get('des_key'), TRUE);
                             // constant time
                             $cmp = strlen($signature) ^ strlen($signature_verification);
                             $signature = $signature ^ $signature_verification;
