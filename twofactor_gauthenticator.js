@@ -86,6 +86,7 @@ jQuery(function($) {
                             "text": url_qr_code_values,
                             "radius": 0.5,
                             "mode": 0,
+			    "quiet": 2,
                         });
                     } else {
                         $('#2FA_qr_code').append($('<img/>').prop('src', 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='+encodeURIComponent(url_qr_code_values)));
