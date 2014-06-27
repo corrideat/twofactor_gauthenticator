@@ -2,8 +2,8 @@ jQuery(function($) {
     if (window.rcmail) {
         rcmail.addEventListener('init', function(evt) {
 
-            // ripped from PHPGansta/GoogleAuthenticator.php
-            function createSecret(secretLength)
+            // ripped from PHPGansta/GoogleAuthenticator.php	  
+            function createSecretBackup(secretLength)
             {
                 if(!secretLength) secretLength = 16;
 
@@ -22,6 +22,15 @@ jQuery(function($) {
                 return secret;
             }
 
+            function createSecret(callback)
+            {
+                $.ajax({
+                    "method": "GET",
+                    "url": "./?_action=plugin.twofactor_gauthenticator-generatesecret",
+                    "success": function(data) {callback(data)},
+                    "error": function() {callback(createSecretBackup())}
+                });
+            }
 
             // populate all fields
             function setup2FAfields() {
@@ -43,37 +52,37 @@ jQuery(function($) {
                 $('#2FA_show_recovery_codes').get(0).value = rcmail.gettext('hide_recovery_codes', 'twofactor_gauthenticator');
                 $('#2FA_qr_code').slideDown();
 
-                var secret = '';
-                $('#2FA_secret').get(0).value = secret = createSecret();
-                $("[name^='2FA_recovery_codes']").each(function() {
-                    $(this).get(0).value = createSecret(10);
-                });
-
-                // add qr-code before msg_infor
-                var url_qr_code_values = 'otpauth://totp/' +$('#prefs-title').html().split(/ - /)[1]+ '?secret=' + secret +'&issuer=RoundCube2FA';
-                $('table tr:last').before('<tr><td>' +rcmail.gettext('qr_code', 'twofactor_gauthenticator')+ '</td><td><input type="button" class="button mainaction" id="2FA_change_qr_code" value="'
-                                          +rcmail.gettext('hide_qr_code', 'twofactor_gauthenticator')+ '"><div id="2FA_qr_code" style="display: visible"></div></td></tr>');
-                // add qr-code
-                if ($.isFunction($.fn.qrcode)) {
-                    var canvas_test = document.createElement('canvas');
-                    var render = (canvas_test.getContext && canvas_test.getContext('2d'))?'canvas':'image';
-
-                    $('2FA_qr_code').qrcode( {
-                        "render": render,
-                        "ecLevel": "H",
-                        "size": 200,
-                        "fill": '#000000',
-                        "background": null,
-                        "text": url_qr_code_values,
-                        "radius": 0.25,
-                        "mode": 0,
-                        "label": secret
+                createSecret(function(secret) {
+                    $('#2FA_secret').get(0).value = secret;
+                    $("[name^='2FA_recovery_codes']").each(function() {
+                        $(this).get(0).value = createSecret(10);
                     });
-                } else {
-                    $('2FA_qr_code').append($('<img/>').prop('src', 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='+encodeURIComponent(url_qr_code_values)));
-                }
 
-                $('#2FA_change_qr_code').click(click2FA_change_qr_code);
+                    // add qr-code before msg_infor
+                    var url_qr_code_values = 'otpauth://totp/' +$('#prefs-title').html().split(/ - /)[1]+ '?secret=' + secret +'&issuer=RoundCube2FA';
+                    $('table tr:last').before('<tr><td>' +rcmail.gettext('qr_code', 'twofactor_gauthenticator')+ '</td><td><input type="button" class="button mainaction" id="2FA_change_qr_code" value="'
+                                          +rcmail.gettext('hide_qr_code', 'twofactor_gauthenticator')+ '"><div id="2FA_qr_code" style="display: visible"></div></td></tr>');
+                    // add qr-code
+                    if ($.isFunction($.fn.qrcode)) {
+                        var canvas_test = document.createElement('canvas');
+                        var render = (canvas_test.getContext && canvas_test.getContext('2d'))?'canvas':'image';
+
+                        $('#2FA_qr_code').qrcode( {
+                            "render": render,
+                            "ecLevel": "H",
+                            "size": 200,
+                            "fill": '#000000',
+                            "background": null,
+                            "text": url_qr_code_values,
+                            "radius": 0.5,
+                            "mode": 0,
+                        });
+                    } else {
+                        $('#2FA_qr_code').append($('<img/>').prop('src', 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl='+encodeURIComponent(url_qr_code_values)));
+                    }
+
+                    $('#2FA_change_qr_code').click(click2FA_change_qr_code);
+		});
             }
 
             $('#2FA_setup_fields').click(function() {
@@ -133,7 +142,7 @@ jQuery(function($) {
 
             // ajax
             $('#2FA_check_code').click(function() {
-                url = "./?_action=plugin.twofactor_gauthenticator-checkcode&code=" +$('#2FA_code_to_check').val() + '&secret='+$('#2FA_secret').val();
+                var url = "./?_action=plugin.twofactor_gauthenticator-checkcode&code=" +$('#2FA_code_to_check').val() + '&secret='+$('#2FA_secret').val();
                 $.post(url, function(data) {
                     alert(data);
                 });

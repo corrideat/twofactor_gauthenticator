@@ -33,6 +33,8 @@ class twofactor_gauthenticator extends rcube_plugin
 
         // check code with ajax
         $this->register_action('plugin.twofactor_gauthenticator-checkcode', array($this, 'checkCode'));
+        // generate secret with ajax
+        $this->register_action('plugin.twofactor_gauthenticator-generatesecret', array($this, 'generateSecret'));
 
         // config
         $this->register_action('twofactor_gauthenticator', array($this, 'twofactor_gauthenticator_init'));
@@ -215,16 +217,8 @@ class twofactor_gauthenticator extends rcube_plugin
         $input_descsecret = new html_inputfield(array('name' => $field_id, 'id' => $field_id, 'size' => 60, 'type' => 'password', 'value' => ''));
         $table->add('title', html::label($field_id, Q($this->gettext('secret'))));
         $html_secret = $input_descsecret->show();
-        if($data['secret'])
-        {
-            $html_secret .= '<input type="button" class="button mainaction" id="2FA_change_secret" value="'.$this->gettext('show_secret').'">';
-        }
-        else
-        {
-            $html_secret .= '<input type="button" class="button mainaction" id="2FA_create_secret" value="'.$this->gettext('create_secret').'">';
-        }
+        $html_secret .= '<input type="button" class="button mainaction" id="2FA_change_secret" value="'.$this->gettext('show_secret').'">';
         $table->add(null, $html_secret);
-
 
         // recovery codes
         $table->add('title', $this->gettext('recovery_codes'));
@@ -290,18 +284,26 @@ class twofactor_gauthenticator extends rcube_plugin
 
     // used with ajax
     function checkCode() {
+        header('HTTP/1.1 200 OK');
+        header('Content-type: text/plain; charset=utf-8');
         $code = get_input_value('code', RCUBE_INPUT_GET);
         $secret = get_input_value('secret', RCUBE_INPUT_GET);
 
         if(self::__checkCode($code, $secret))
         {
-            echo $this->gettext('code_ok');
+            die($this->gettext('code_ok'));
         }
         else
         {
-            echo $this->gettext('code_ko');
+            die($this->gettext('code_ko'));
         }
-        exit;
+    }
+    
+    // used with ajax
+    function generateSecret() {
+        header('HTTP/1.1 200 OK');
+        header('Content-type: text/plain; charset=us-ascii');
+        die(self::__createSecret());
     }
 
 
