@@ -236,15 +236,8 @@ class twofactor_gauthenticator extends rcube_plugin
         // infor
         $table->add(null, '<td><br>'.$this->gettext('msg_infor').'</td>');
 
-        // button to setup all fields if doesn't exists secret
-        $html_setup_all_fields = '';
-        if(!$data['secret']) {
-            $html_setup_all_fields = '<input type="button" class="button mainaction" id="2FA_setup_fields" value="'.$this->gettext('setup_all_fields').'">';
-        }
-
+        $html_setup_all_fields = '<input type="button" class="button mainaction" id="2FA_setup_fields" value="'.$this->gettext('setup_all_fields').'">';
         $html_check_code = '<br /><br /><input type="button" class="button mainaction" id="2FA_check_code" value="'.$this->gettext('check_code').'"> &nbsp;&nbsp; <input type="text" id="2FA_code_to_check" maxlength="10">';
-
-
 
         // Build the table with the divs around it
         $out = html::div(array('class' => 'settingsbox', 'style' => 'margin: 0;'),
