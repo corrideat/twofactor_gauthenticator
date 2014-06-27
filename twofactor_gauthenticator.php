@@ -9,8 +9,8 @@
  *
  * @version 1.1
  *
- * Author(s): Alexandre Espinosa <aemenor@gmail.com>, Ricardo Signes <rjbs@cpan.org>
- * Date: 2013-11-30
+ * Author(s): Alexandre Espinosa <aemenor@gmail.com>, Ricardo Signes <rjbs@cpan.org>, Ricardo Iván Vieitez Parra <development@youruseragent.info>
+ * Date: 2014-06-27
  */
 require_once 'PHPGangsta/GoogleAuthenticator.php';
 
@@ -37,6 +37,7 @@ class twofactor_gauthenticator extends rcube_plugin
         // config
         $this->register_action('twofactor_gauthenticator', array($this, 'twofactor_gauthenticator_init'));
         $this->register_action('plugin.twofactor_gauthenticator-save', array($this, 'twofactor_gauthenticator_save'));
+        $this->include_script('jquery.qrcode-0.7.0.min.js');
         $this->include_script('twofactor_gauthenticator.js');
     }
 
