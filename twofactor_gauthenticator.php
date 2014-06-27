@@ -212,7 +212,7 @@ class twofactor_gauthenticator extends rcube_plugin
 
         // secret
         $field_id = '2FA_secret';
-        $input_descsecret = new html_inputfield(array('name' => $field_id, 'id' => $field_id, 'size' => 60, 'type' => 'password', 'value' => $data['secret']));
+        $input_descsecret = new html_inputfield(array('name' => $field_id, 'id' => $field_id, 'size' => 60, 'type' => 'password', 'value' => ''));
         $table->add('title', html::label($field_id, Q($this->gettext('secret'))));
         $html_secret = $input_descsecret->show();
         if($data['secret'])
@@ -233,19 +233,11 @@ class twofactor_gauthenticator extends rcube_plugin
         $i=0;
         for($i = 0; $i < $this->_number_recovery_codes; $i++)
         {
-            $value = isset($data['recovery_codes'][$i]) ? $data['recovery_codes'][$i] : '';
-            $html_recovery_codes .= ' <input type="password" name="2FA_recovery_codes[]" value="'.$value.'" maxlength="10"> &nbsp; ';
+            $html_recovery_codes .= ' <input type="password" name="2FA_recovery_codes[]" value="" maxlength="10"> &nbsp; ';
         }
         $html_recovery_codes .= '<input type="button" class="button mainaction" id="2FA_show_recovery_codes" value="'.$this->gettext('show_recovery_codes').'">';
         $table->add(null, $html_recovery_codes);
 
-
-        // qr-code
-        if($data['secret']) {
-            $table->add('title', $this->gettext('qr_code'));
-            $table->add(null, '<input type="button" class="button mainaction" id="2FA_change_qr_code" value="'.$this->gettext('show_qr_code').'">
-                        <div id="2FA_qr_code" style="display: none;"><img src="'.self::__getQRCodeGoogle().'" /></div>');
-        }
 
         // infor
         $table->add(null, '<td><br>'.$this->gettext('msg_infor').'</td>');
@@ -254,8 +246,6 @@ class twofactor_gauthenticator extends rcube_plugin
         $html_setup_all_fields = '';
         if(!$data['secret']) {
             $html_setup_all_fields = '<input type="button" class="button mainaction" id="2FA_setup_fields" value="'.$this->gettext('setup_all_fields').'">';
-        } else {
-            $html_setup_all_fields = '<div id="2FA_setup_fields"></div><script type="application/ecmascript">jQuery("#2FA_setup_fields").trigger("setup");</script>';
         }
 
         $html_check_code = '<br /><br /><input type="button" class="button mainaction" id="2FA_check_code" value="'.$this->gettext('check_code').'"> &nbsp;&nbsp; <input type="text" id="2FA_code_to_check" maxlength="10">';
@@ -373,8 +363,12 @@ class twofactor_gauthenticator extends rcube_plugin
     // returns string
     private function __createSecret()
     {
-        $ga = new PHPGangsta_GoogleAuthenticator();
-        return $ga->createSecret();
+        $table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        $rand = openssl_random_pseudo_bytes(16);
+        $key = '';
+        for($i=0; $i<16;$i++) {
+	  $key .= $table{ord($rand{$i} % 32)};
+        }
     }
 
     // returns string
@@ -382,15 +376,6 @@ class twofactor_gauthenticator extends rcube_plugin
     {
         $prefs = self::__get2FAconfig();
         return $prefs['secret'];
-    }
-
-    // returns string (url to img)
-    private function __getQRCodeGoogle()
-    {
-        $rcmail = rcmail::get_instance();
-
-        $ga = new PHPGangsta_GoogleAuthenticator();
-        return $ga->getQRCodeGoogleUrl($rcmail->user->data['username'], self::__getSecret(), 'RoundCube2FA');
     }
 
     // returns boolean
