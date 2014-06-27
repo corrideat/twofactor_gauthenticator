@@ -26,7 +26,7 @@ jQuery(function($) {
             {
                 var callcallback = function(data) {
                     var p1 = data.substr(0, 16);
-                    var p2 = data.substr(16).replace(/[ABCD]/g, "2").replace(/[DEFG]/g, "3").replace(/[HIJK]/g, "4").replace(/[LMNO]/g, "5").replace(/[PQRS]/g, "6").replace(/[TUVW]/g, "7").replace((/X/g, (Math.random()>=0.5)?"2":"3").replace(/Y/g, (Math.random()>=0.5)?"4":"5").replace((/Z/g, (Math.random()>=0.5)?"6":"7");
+                    var p2 = data.substr(16).replace(/[ABCD]/g, "2").replace(/[DEFG]/g, "3").replace(/[HIJK]/g, "4").replace(/[LMNO]/g, "5").replace(/[PQRS]/g, "6").replace(/[TUVW]/g, "7").replace(/X/g, (Math.random()>=0.5)?"2":"3").replace(/Y/g, (Math.random()>=0.5)?"4":"5").replace(/Z/g, (Math.random()>=0.5)?"6":"7");
                     callback(p1+p2);
                 };
                 $.ajax({
