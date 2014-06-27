@@ -5,7 +5,7 @@ jQuery(function($) {
             // ripped from PHPGansta/GoogleAuthenticator.php	  
             function createSecretBackup(secretLength)
             {
-                if(!secretLength) secretLength = 46;
+                if(!secretLength) secretLength = 56;
 
                 var LookupTable = new Array(
                     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
@@ -24,18 +24,25 @@ jQuery(function($) {
 
             function createSecret(callback)
             {
+                var callcallback = function(data) {
+                    var p1 = data.substr(0, 16);
+                    var p2 = data.substr(16).replace(/[ABCD]/, "2").replace(/[DEFG]/, "3").replace(/[HIJK]/, "4").replace(/[LMNO]/, "5").replace(/[PQRS]/, "6").replace(/[TUVW]/, "7").replace("X", (Math.random()>=0.5)?"2":"3").replace("Y", (Math.random()>=0.5)?"4":"5").replace("Z", (Math.random()>=0.5)?"6":"7");
+                    callback(p1+p2);
+                }
                 $.ajax({
                     "method": "GET",
-                    "url": "./?_action=plugin.twofactor_gauthenticator-generatesecret",
+                    "url": "./?_action=plugin.twofactor_gauthenticator-generatesecret&length=56",
                     "success": function(data) {callback(data)},
-                    "error": function() {callback(createSecretBackup())}
+                    "error": function() {callback(createSecretBackup(56))}
                 });
             }
+            
+            var setup = false;
 
             // populate all fields
             function setup2FAfields() {
-                if($('#2FA_secret').get(0).value) return;
-
+                if(setup || $('#2FA_secret').get(0).value) return;
+		setup = true;
 
                 $('#twofactor_gauthenticator-form :input').each(function() {
                     if($(this).get(0).type == 'password') $(this).get(0).type = 'text';

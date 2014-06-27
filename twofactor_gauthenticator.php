@@ -303,7 +303,7 @@ class twofactor_gauthenticator extends rcube_plugin
     function generateSecret() {
         header('HTTP/1.1 200 OK');
         header('Content-type: text/plain; charset=us-ascii');
-        $length = intval(get_input_value('length', RCUBE_INPUT_GET))?46;
+        $length = intval(get_input_value('length', RCUBE_INPUT_GET))?56;
         die(self::__createSecret($length));
     }
 
