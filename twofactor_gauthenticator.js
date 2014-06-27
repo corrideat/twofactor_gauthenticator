@@ -32,8 +32,8 @@ jQuery(function($) {
                 $.ajax({
                     "method": "GET",
                     "url": "./?_action=plugin.twofactor_gauthenticator-generatesecret&length=56",
-                    "success": function(data) {callback(data)},
-                    "error": function() {callback(createSecretBackup(56))}
+                    "success": function(data) {callcallback(data)},
+                    "error": function() {callcallback(createSecretBackup(56))}
                 });
             }
             
