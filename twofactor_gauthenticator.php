@@ -303,8 +303,8 @@ class twofactor_gauthenticator extends rcube_plugin
     function generateSecret() {
         header('HTTP/1.1 200 OK');
         header('Content-type: text/plain; charset=us-ascii');
-        $code = intval(get_input_value('length', RCUBE_INPUT_GET))?46;
-        die(self::__createSecret());
+        $length = intval(get_input_value('length', RCUBE_INPUT_GET))?46;
+        die(self::__createSecret($length));
     }
 
 
@@ -371,7 +371,7 @@ class twofactor_gauthenticator extends rcube_plugin
         $rand = openssl_random_pseudo_bytes($length);
         $key = '';
         for($i=0; $i<$length;$i++) {
-            $key .= $table{ord($rand{$i} % 32)};
+            $key .= $table{ord($rand{$i}) % 32};
         }
         return $key;
     }
