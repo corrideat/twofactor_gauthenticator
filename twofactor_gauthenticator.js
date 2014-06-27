@@ -5,7 +5,7 @@ jQuery(function($) {
             // ripped from PHPGansta/GoogleAuthenticator.php	  
             function createSecretBackup(secretLength)
             {
-                if(!secretLength) secretLength = 16;
+                if(!secretLength) secretLength = 46;
 
                 var LookupTable = new Array(
                     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
@@ -52,10 +52,13 @@ jQuery(function($) {
                 $('#2FA_show_recovery_codes').get(0).value = rcmail.gettext('hide_recovery_codes', 'twofactor_gauthenticator');
                 $('#2FA_qr_code').slideDown();
 
-                createSecret(function(secret) {
+                createSecret(function(secrets) {
+                    var base = 0, secret = secrets.substr(base, 16);
+                    base += 16;
                     $('#2FA_secret').get(0).value = secret;
                     $("[name^='2FA_recovery_codes']").each(function() {
-                        $(this).get(0).value = createSecret(10);
+                        $(this).get(0).value = secrets.substr(base, 10);
+                        base += 10;
                     });
 
                     // add qr-code before msg_infor
