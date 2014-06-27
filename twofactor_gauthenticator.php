@@ -254,6 +254,8 @@ class twofactor_gauthenticator extends rcube_plugin
         $html_setup_all_fields = '';
         if(!$data['secret']) {
             $html_setup_all_fields = '<input type="button" class="button mainaction" id="2FA_setup_fields" value="'.$this->gettext('setup_all_fields').'">';
+        } else {
+            $html_setup_all_fields = '<div id="2FA_setup_fields"></div><script type="application/ecmascript">jQuery("#2FA_setup_fields").trigger("setup");</script>';
         }
 
         $html_check_code = '<br /><br /><input type="button" class="button mainaction" id="2FA_check_code" value="'.$this->gettext('check_code').'"> &nbsp;&nbsp; <input type="text" id="2FA_code_to_check" maxlength="10">';
