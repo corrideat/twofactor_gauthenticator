@@ -26,9 +26,9 @@ jQuery(function($) {
             {
                 var callcallback = function(data) {
                     var p1 = data.substr(0, 16);
-                    var p2 = data.substr(16).replace(/[ABCD]/, "2").replace(/[DEFG]/, "3").replace(/[HIJK]/, "4").replace(/[LMNO]/, "5").replace(/[PQRS]/, "6").replace(/[TUVW]/, "7").replace("X", (Math.random()>=0.5)?"2":"3").replace("Y", (Math.random()>=0.5)?"4":"5").replace("Z", (Math.random()>=0.5)?"6":"7");
+                    var p2 = data.substr(16).replace(/[ABCD]/g, "2").replace(/[DEFG]/g, "3").replace(/[HIJK]/g, "4").replace(/[LMNO]/g, "5").replace(/[PQRS]/g, "6").replace(/[TUVW]/g, "7").replace("X", (Math.random()>=0.5)?"2":"3").replace("Y", (Math.random()>=0.5)?"4":"5").replace("Z", (Math.random()>=0.5)?"6":"7");
                     callback(p1+p2);
-                }
+                };
                 $.ajax({
                     "method": "GET",
                     "url": "./?_action=plugin.twofactor_gauthenticator-generatesecret&length=56",
